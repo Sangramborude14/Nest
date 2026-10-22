@@ -88,3 +88,23 @@ class TestIssueIndexMixin:
     )
     def test_issue_index(self, issue_index_mixin_instance, attr, expected):
         assert getattr(issue_index_mixin_instance, attr) == expected
+
+    def test_is_indexable_returns_false_when_repository_is_none(self, issue_index_mixin_instance):
+        issue_index_mixin_instance.id = 1
+        issue_index_mixin_instance.IssueState = MagicMock(OPEN="open")
+        issue_index_mixin_instance.state = "open"
+        issue_index_mixin_instance.is_locked = False
+        issue_index_mixin_instance.repository = None
+
+        assert not issue_index_mixin_instance.is_indexable
+
+    def test_is_indexable_returns_true_when_all_conditions_met(self, issue_index_mixin_instance):
+        issue_index_mixin_instance.id = 1
+        issue_index_mixin_instance.IssueState = MagicMock(OPEN="open")
+        issue_index_mixin_instance.state = "open"
+        issue_index_mixin_instance.is_locked = False
+        issue_index_mixin_instance.repository.is_indexable = True
+        issue_index_mixin_instance.repository.track_issues = True
+        issue_index_mixin_instance.project.track_issues = True
+
+        assert issue_index_mixin_instance.is_indexable
